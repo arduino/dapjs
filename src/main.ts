@@ -268,13 +268,9 @@ export class Dap {
     private packetLength = 64;
 
     constructor(path: string) {
-        this.dev = new HID.HID(path)
-
-        var deviceInfo = this.dev.getDeviceInfo();
-
-        if (deviceInfo && deviceInfo.manufacturer === 'Atmel Corp.') {
-            this.packetLength = 513;
-        }
+        this.dev = new HID.HID(path, {
+            autoOpen: false
+        })
 
         this.dev.on("data", (buf: Buffer) => {
             let c = this.sent.shift()
@@ -363,12 +359,30 @@ export class Dap {
     }
 
     disconnectAsync() {
+        var devClose = Promise.promisify(this.dev.close.bind(this.dev));
+
         return this.cmdNumsAsync(DapCmd.DAP_DISCONNECT, [])
+            .then(() => {
+                return devClose();
+            })
     }
 
     connectAsync() {
         info("Connecting...")
-        return this.infoAsync(Info.PACKET_COUNT)
+
+        var devOpen = Promise.promisify(this.dev.open.bind(this.dev));
+
+        return devOpen()
+            .then(() => {
+                var deviceInfo = this.dev.getDeviceInfo();
+
+                if (deviceInfo && (deviceInfo.manufacturer === 'Atmel Corp.' || deviceInfo.vendorId === 0x03eb)) {
+                    this.packetLength = 513;
+                }
+            })
+            .then(() => {
+                return this.infoAsync(Info.PACKET_COUNT)
+            })
             .then((v: number) => {
                 this.maxSent = v
             })
@@ -499,6 +513,10 @@ export class Device {
             .then(() => this.readApAsync(ApReg.IDR))
             .then(() => this.setupFpbAsync())
             .then(() => info("Initialized."))
+    }
+
+    closeAsync() {
+        return this.dap.disconnectAsync();
     }
 
     writeRegAsync(regId: Reg, val: number) {
@@ -1037,6 +1055,15 @@ export function getMbedDevices() {
 export function getEdbgDevices() {
     let devices = HID.devices() as HidDevice[]
     return devices.filter(d => /EDBG CMSIS-DAP/.test(d.product))
+}
+
+export function getEdbgDevicesAsync() {
+    var hidDevices = Promise.promisify(HID.devices.bind(HID));
+
+    return hidDevices()
+        .then(function(devices : HidDevice[]) {
+            return devices.filter(d => /EDBG CMSIS-DAP/.test(d.product))
+        });
 }
 
 export interface Map<T> {

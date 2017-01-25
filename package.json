@@ -22,5 +22,8 @@
     "built/main.d.ts"
   ],
   "typings": "built/main",
-  "main": "built/main.js"
+  "main": "built/main.js",
+  "browser": {
+    "node-hid": "./browser-hid"
+  }
 }
