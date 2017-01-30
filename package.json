@@ -4,7 +4,8 @@
   "description": "JavaScript interface to on-chip debugger (CMSIS-DAP)",
   "dependencies": {
     "bluebird": "^3.3.5",
-    "node-hid": "sandeepmistry/node-hid#more-callbacks"
+    "node-hid": "arduino/node-hid#more-callbacks",
+    "browser-hid": "arduino/browser-hid"
   },
   "devDependencies": {
     "typescript": "^1.8.10"
@@ -24,6 +25,6 @@
   "typings": "built/main",
   "main": "built/main.js",
   "browser": {
-    "node-hid": "./browser-hid"
+    "node-hid": "browser-hid"
   }
 }
