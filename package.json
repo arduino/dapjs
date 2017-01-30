@@ -26,5 +26,8 @@
   "main": "built/main.js",
   "browser": {
     "node-hid": "browser-hid"
+  },
+  "scripts": {
+    "build": "tsc"
   }
 }

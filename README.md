@@ -14,7 +14,7 @@ so it's easier to refactor it to use different USB/HID providers (WinRT, Chrome 
 ```
 typings install
 npm install
-make
+npm run build
 ```
 
 ## License
