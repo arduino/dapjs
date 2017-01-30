@@ -12,8 +12,8 @@ so it's easier to refactor it to use different USB/HID providers (WinRT, Chrome 
 ## Build process
 
 ```
-typings install
 npm install
+npm run typings
 npm run build
 ```
 
